@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Crosstab";
+}
+
+
+<div class="row">
+    <div class="col">
+        <table id="crosstab" class="table table-condensed table-bordered" width="100%">
+            <thead>
+                <tr>
+                    <th>ApiClientId</th>
+                    <th>School Id</th>
+                    <th>School Name</th>
+                    <th>Lea Id</th>
+                    <th>Lea Name</th>
+                    <th>Vendor Name</th>
+                    <th>Api Key</th>
+                    <th>ClaimSet Name</th>
+                    <th>Profile Name</th>
+                 
+                </tr>
+            </thead>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+   var table= $('#crosstab').DataTable({
+            ajax: {
+                url: "@Url.Action("CrosstabRead")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "ApiClientId", visible: false },
+                { data: "SchoolId" },
+                { data: "SchoolName" },
+                { data: "LeaId" },
+                { data: "LeaName" },
+                { data: "VendorName" },
+                { data: "ApiKey" },
+                { data: "ClaimSetName" },
+                { data: "ProfileName" }
+            ],
+            order: [[4, "desc"]],
+            lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'csv', 'excel', 'colvis'
+       ],
+            scrollX: true
+
+        } );
+    });
+</script>

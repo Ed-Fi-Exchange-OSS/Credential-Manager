@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Claimset Details";
+}
+
+
+
+<div class="row">
+    <div class="col">
+        <table id="claimsets" class="table table-condensed table-bordered" width="100%">
+            <thead>
+                <tr>
+                    <th>Claimset Type Name</th>
+                    <th>Name </th>
+                    <th>Year</th>
+                    <th>Primary SIS</th>
+                    <th>Public</th>
+                    <th>Choice</th>
+                    <th>School Level</th>
+                     <th>Read Only</th>
+                    <th>Profile</th>
+                    <th>Active</th>
+                    <th>Domain</th>
+                    <th>Plain English</th>
+                </tr>
+            </thead>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table= $('#claimsets').DataTable({
+            ajax: {
+                url: "@Url.Action("ClaimsetDetailsRead")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "ClaimsetTypeName"},
+                { data: "ClaimSetName" },
+                { data: "RequirementYear" },
+                { data: "PrimarySis" },
+                { data: "PublicClaimset" },
+                { data: "ChoiceClaimset" },
+                { data: "SchoolLevelClaimset" },
+                 { data: "ReadOnlyClaimset" },
+                { data: "ProfileName" },
+                { data: "Active" },
+                { data: "LogicalDomain" },
+                { data: "PlainEnglish" }
+            ],
+            order: [[0, "asc"]],
+            paging: false,
+            dom: 'Bfrtip',
+            buttons: [
+                'csv', 'excel', 'colvis'
+            ],
+            scrollX: true
+
+        } );
+    });
+</script>

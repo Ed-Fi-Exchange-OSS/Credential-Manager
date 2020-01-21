@@ -1,0 +1,543 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Vendors</h2>
+<div class="container">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Create", "Vendors", FormMethod.Post, new { area = "", id = "createVendor" }))
+        {
+            <div class="col-xs-4">
+                @Html.Label("VendorName")
+                @Html.TextBox("VendorName", "", new { id = "VendorName" })
+            </div>
+            <div class="col-xs-4">
+                <button type="button" onclick="vendorFormSubmit()">Submit</button>
+                <button type="button" onclick="vendorFormCancel()">Cancel</button>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="example" class="display table table-condensed table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>Vendor Name</th>
+            <th>Namespace Prefixes</th>
+            <th><div class="col-xs-4">
+                    <button class="btn btn-primary btn-sm" type="button" id="createVendorButton">
+                        Create New Vendor
+                    </button>
+                </div>
+
+            </th>
+        </tr>
+    </thead>
+    <tfoot>
+
+    </tfoot>
+</table>
+
+
+<div id="sampleApplication" style="display: none;">
+    
+    <div id="applicationForm_{1}"></div>
+    <table id="vendordetail_{2}" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Application Name</th>
+                <th>Claimset Name</th>
+                <th>Profile</th>
+                <th><a href="#" onclick="createApplication({0})" class="btn btn-primary btn-sm"
+   data-toggle="modal" data-target="#editModal">Create New Application</a></th>
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<div id="sampleClient" style="display: none;">
+    
+    <div id="clientForm_{1}"></div>
+    <table id="applicationdetail_{2}" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Key</th>
+                <th>Secret</th>
+                <th><a href="#" onclick="createApiClient({0})" class="btn btn-primary btn-sm"
+   data-toggle="modal" data-target="#editModal">Create New Api Client</a></th>
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<div id="sampleOrgs" style="display: none;">
+   
+    <div id="orgForm_{1}"></div>
+    <table id="clientdetail_{2}" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>LEA</th>
+                <th>City</th>
+                <th>
+                    <a href="#" onclick="createOrg({0})" class="btn btn-primary btn-sm"
+                       data-toggle="modal" data-target="#editModal">Add Education Organization</a>
+                </th>
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<script type="text/javascript">
+    var vendorTable;
+    var vendorPrefix = "#vendordetail_";
+    var applicationPrefix = "#applicationdetail_";
+    var apiClientPrefix = "#clientdetail_";
+
+    $(document).ready(function () {
+
+       vendorTable= $('#example').DataTable( {
+            ajax: {
+                url: "@Url.Action("Read")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "VendorName" },
+                { data: "NamespacePrefix" },
+                {
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<span class="btn btn-info btn-sm details-control">Expand</span> <span class="btn btn-danger btn-sm vendor-delete-control">Delete</span>'
+                }
+
+            ],
+            lengthMenu: [[25, 50, -1], [25, 50, "All"]],
+            info: false
+
+        });
+
+
+        // Add event listener for opening and closing details
+        $('#example tbody').on('click',
+            'span.details-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = vendorTable.row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(applicationFormat(row.data())).show();
+                    var vendorId = row.data().VendorId;
+                    loadApplication(vendorId);
+                tr.addClass('shown');
+            }
+            });
+        // Add event listener for delete
+        $('#example tbody').on('click',
+            'span.vendor-delete-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = vendorTable.row(tr);
+                var vendorId = row.data().VendorId;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Delete", "Vendors")",
+                    data: { vendorId: vendorId},
+                    success: function (data) {
+                        if (data.success) {
+                            vendorTable.ajax.reload();
+                        }
+                        else { alert(data.Errors); }
+
+                    }
+
+                });
+                return false;
+
+            });
+
+        vendorFormCancel();
+        $('#createVendorButton').on('click', function () {createVendor()});
+
+    });
+
+   function vendorFormSubmit() {
+        var vendor = {
+            VendorName: $("#VendorName").val()
+        };
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Create", "Vendors")",
+            data: vendor,
+            dataType: "json",
+            success: function(result) {
+                vendorTable.ajax.reload();
+                $('#createVendor').hide();
+      
+            },
+            error: function(xhr, errorType, exception) {
+                console.log("Excep:: " + exception + " - Status:: " + xhr.statusText);
+            }
+        });
+    }
+
+    function vendorFormCancel() {
+        $('#createVendor').hide();
+        return false;
+    }
+
+    function createVendor() {
+        $('#createVendor').show();
+        return false;
+    }
+
+
+    function loadApplication(vendorId) {
+        var divname = vendorPrefix + vendorId;
+        var vendor = { vendorId: vendorId };
+
+        $(divname).DataTable({
+            ajax: {
+                url: "@Url.Action("Application_Read","Vendors")",
+                data: vendor,
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "ApplicationName" },
+                { data: "ClaimSetName" },
+                { data: "ProfileName" },
+                {
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<span class="btn btn-info btn-sm clients-control">Expand</span> <span class="btn btn-danger btn-sm application-delete-control">Delete</span>'
+                }
+
+            ],
+            searching: false,
+            paging: false,
+            info: false
+        });
+
+         // Add event listener for opening and closing details
+        $(divname + ' tbody').on('click',
+            'span.clients-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = $(divname).DataTable().row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(clientFormat(row.data())).show();
+
+                    var applicationId = row.data().ApplicationId;
+                    loadClients(applicationId);
+                tr.addClass('shown');
+            }
+            });
+
+        // Add event listener for delete
+        $(divname).on('click',
+            'span.application-delete-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = $(divname).DataTable().row(tr);
+                var applicationId = row.data().ApplicationId;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Application_Delete", "Vendors")",
+                    data: { applicationId: applicationId},
+                    success: function (data) {
+                        if (data.success) {
+                            $(divname).DataTable().ajax.reload();
+                        }
+                        else { alert(data.Errors); }
+
+                    }
+
+                });
+                return false;
+
+            });
+    }
+
+    function applicationFormat(d) {
+       return $("#sampleApplication").html().replace("{0}", d.VendorId).replace("{1}", d.VendorId).replace("{2}", d.VendorId);
+    }
+
+    function createApplication(vendorId) {
+        var vendor = {
+            vendorId: vendorId
+        };
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("Application_Create", "Vendors")",
+            data: vendor,
+            success: function(data) {
+                $('#applicationForm_'+vendorId).html(data);
+            }
+        });
+        return false;
+    }
+
+    function applicationFormSubmit(vendorId) {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Application_Create", "Vendors")",
+            data: $("#createApplication_"+vendorId).serialize(),
+            success: function (data) {
+                $('#applicationForm_' + vendorId).html("");
+                $(vendorPrefix + vendorId).DataTable().ajax.reload();
+            }
+        });
+        return false;
+    }
+
+    function applicationFormCancel(vendorId) {
+        $('#applicationForm_' + vendorId).html("");
+        return false;
+    }
+
+
+    function loadClients(applicationId) {
+        var divname = applicationPrefix + applicationId;
+        var application = { applicationId: applicationId };
+
+        $(divname).DataTable({
+            ajax: {
+                url: "@Url.Action("ApiClient_Read","Vendors")",
+                data: application,
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "Name" },
+                { data: "Key" },
+                { data: "SecretDisplay" },
+                {
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<span class="btn btn-info btn-sm orgs-control">Expand</span> <span class="btn btn-danger btn-sm client-delete-control">Delete</span>'
+                }
+
+            ],
+            searching: false,
+            paging: false,
+            info: false
+        });
+
+         // Add event listener for opening and closing details
+        $(divname + ' tbody').on('click',
+            'span.orgs-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = $(divname).DataTable().row(tr);
+
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child(orgFormat(row.data())).show();
+
+                    var apiClientId = row.data().ApiClientId;
+                    loadOrgs(apiClientId);
+                tr.addClass('shown');
+            }
+            });
+
+        // Add event listener for delete
+        $(divname).on('click',
+            'span.client-delete-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = $(divname).DataTable().row(tr);
+                var apiClientId = row.data().ApiClientId;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ApiClient_Delete", "Vendors")",
+                    data: {apiClientId:apiClientId},
+                    success: function (data) {
+                        if (data.success) {
+                            $(divname).DataTable().ajax.reload();
+                        }
+                        else { alert(data.Errors); }
+
+                    }
+
+                });
+                return false;
+
+            });
+    }
+
+     function clientFormat(d) {
+         return $("#sampleClient").html().replace("{0}", d.ApplicationId).replace("{1}", d.ApplicationId).replace("{2}", d.ApplicationId);
+    }
+
+
+
+    function createApiClient(applicationId) {
+        var application = {
+            applicationId: applicationId
+        };
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("ApiClient_Create", "Vendors")",
+            data: application,
+            success: function(data) {
+                $('#clientForm_'+applicationId).html(data);
+            }
+        });
+        return false;
+    }
+
+    function clientFormSubmit(applicationId) {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ApiClient_Create", "Vendors")",
+            data: $("#createApiClient_"+applicationId).serialize(),
+            success: function (data) {
+                if (data.success) {
+                    $('#clientForm_' + applicationId).html("");
+                    $(applicationPrefix + applicationId).DataTable().ajax.reload();
+                }
+                else { $('#clientFormErrors_' + applicationId).html(data.Errors); }
+
+            }
+
+        });
+        return false;
+    }
+
+    function clientFormCancel(applicationId) {
+        $('#clientForm_' + applicationId).html("");
+        return false;
+    }
+
+   function loadOrgs(apiClientId) {
+        var divname = apiClientPrefix + apiClientId;
+        var apiClient = { apiClientId: apiClientId };
+
+        $(divname).DataTable({
+            ajax: {
+                url: "@Url.Action("Lea_Read","Vendors")",
+                data: apiClient,
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "EducationOrganizationId" },
+                { data: "NameOfInstitution" },
+                { data: "Lea" },
+                { data: "City" },
+                {
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<span class="btn btn-danger btn-sm org-delete-control">Delete</span>'
+                }
+            ],
+            searching: false,
+            paging: false,
+            info: false
+        });
+
+        // Add event listener for delete
+        $(divname).on('click',
+            'span.org-delete-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = $(divname).DataTable().row(tr);
+                var apiClientId = row.data().ApiClientId;
+                var edOrgId = row.data().EducationOrganizationId;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Lea_Delete", "Vendors")",
+                    data: {edOrgId:edOrgId, apiClientId:apiClientId},
+                    success: function (data) {
+                        if (data.success) {
+                            $(apiClientPrefix + apiClientId).DataTable().ajax.reload();
+                        }
+                        else { alert(data.Errors); }
+
+                    }
+
+                });
+                return false;
+
+            });
+    }
+
+    function orgFormat(d) {
+        return $("#sampleOrgs").html().replace("{0}", d.ApiClientId).replace("{1}", d.ApiClientId).replace("{2}", d.ApiClientId);
+    }
+
+    function createOrg(apiClientId) {
+        var apiClient = {
+            apiClientId: apiClientId
+        };
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("Lea_Create", "Vendors")",
+            data: apiClient,
+            success: function(data) {
+                $('#orgForm_' + apiClientId).html(data);
+            }
+        });
+        return false;
+    }
+
+    function orgFormSubmit(apiClientId) {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Lea_Create", "Vendors")",
+            data: $("#createOrg_" + apiClientId).serialize(),
+            success: function (data) {
+                if (data.success) {
+                    $('#orgForm_' + apiClientId).html("");
+                    $(apiClientPrefix + apiClientId).DataTable().ajax.reload();
+                }
+                else { $('#orgFormErrors_' + apiClientId).html(data.Errors); }
+
+            }
+
+        });
+        return false;
+    }
+
+    function orgFormCancel(apiClientId) {
+        $('#orgForm_' + apiClientId).html("");
+        return false;
+    }
+
+</script>
+

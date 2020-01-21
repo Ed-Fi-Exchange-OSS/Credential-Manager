@@ -1,0 +1,52 @@
+﻿@using Ed_Fi.Credential.MVC.Models
+@model SiteContentIndexModel
+@{
+    ViewBag.Title = "Manage Content";
+}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                @using (Html.BeginForm("Index", "SiteContent", FormMethod.Get, new { area = "", id = "lookupForm" }))
+                {
+                    <div class="card bg-light">
+                        <div class="card-header ">Select site content to edit:</div>
+                        <div class="card-body">
+                            @Html.DropDownListFor(x => x.SiteContentTypeId, (IEnumerable<SelectListItem>)ViewData[Constants.CONTENT_TYPES], new { onchange = "onChange()" })
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <br />
+         <div class="row">
+             <div class="col">
+                 @using (Html.BeginForm("Index", "SiteContent", FormMethod.Post, new { area = "" }))
+                 {
+                     <div class="card bg-light">
+                         <div class="card-header ">Content:</div>
+                         <div class="card-body">
+                              @Html.TextAreaFor(x=>x.SiteContent.Body, new{rows="20", cols="800", style="max-width:100%"})
+                             @Html.HiddenFor(x => x.SiteContent.SiteContentTypeId)
+
+                             @if ((bool)ViewData[Constants.CAN_USER_EDIT_CREDENTIAL])
+                             {
+                                 <button class="btn btn-primary" type="submit">
+                                     Save
+                                 </button>
+                                 @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+                             }
+                         </div>
+                     </div>
+
+                 }
+             </div>
+        </div>
+    </div>
+@if ((bool)ViewData[Constants.CAN_USER_EDIT_CREDENTIAL])
+{
+    <script>
+        function onChange() {
+            $('#lookupForm').submit();
+        }
+    </script>
+}

@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ed-Fi Credentials (sample)</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/dt")
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/dt")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Ed-Fi Credentials (sample)", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+        </div>
+    </div>
+<div class="container body-content">
+    @RenderBody()
+    <hr/>
+    <footer>
+        <p>Sample provided by the Wisconsin Department of Public Instruction</p>
+    </footer>
+</div>
+   <script type="text/javascript">
+        function FadePageContent() {
+            $("#contianer").fadeTo('slow', 0.2);
+        }
+
+        function ClosePopup() {
+            $("#contianer").fadeTo('slow', 1);
+        }
+
+        function PageReload() {
+            location.reload();
+        }
+    </script>
+
+ @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,25 @@
+﻿@model Ed_Fi.Credential.MVC.Models.ApiEdOrgModel
+
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="formTitle">
+            Add Education Organization
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="formBody">
+        @using (Html.BeginForm("EdOrg_Create", "Vendors", FormMethod.Post, new { id = "createOrg_" + Model.ApiClientId, onsubmit="$('#submitButton').click(); return false;" }))
+        {
+            @Html.HiddenFor(m => m.ApiClientId)
+                 @Html.LabelFor(m => m.EducationOrganizationId) @Html.TextBoxFor(m => m.EducationOrganizationId)
+        }
+
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" onclick="orgFormSubmit('@Model.ApiClientId')" data-dismiss="modal" id="submitButton">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+﻿@model Ed_Fi.Credential.MVC.Models.MoveApiClientModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="formTitle">
+           Move Api Client
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="formBody">
+         @using (Html.BeginForm("MoveClient", "Vendors", FormMethod.Post, new { id = "moveApiClient_" + Model.ApiClientId, onsubmit = "$('#submitButton').click(); return false;" }))
+        {
+            @Html.HiddenFor(m => m.ApiClientId)
+            @Html.HiddenFor(m => m.OldApplicationApplicationId)
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.Name) @Html.DisplayFor(m => m.Name)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.ApplicationApplicationId) @Html.DropDownListFor(m => m.ApplicationApplicationId,Model.Applications)
+
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="moveFormSubmit('@Model.ApiClientId')" data-dismiss="modal" id="submitButton">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

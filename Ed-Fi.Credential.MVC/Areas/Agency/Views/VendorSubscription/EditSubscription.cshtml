@@ -1,0 +1,112 @@
+﻿@model Ed_Fi.Credential.MVC.Areas.Agency.Models.AgencyClientModel
+@{
+    ViewBag.Title = "Details";
+}
+@Scripts.Render("~/bundles/jqueryval")
+  
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="formTitle">
+                @if (Model.IsNew){ <text>New</text> }else{<text>Edit</text>} Subscription
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="formBody">
+            @using (Html.BeginForm(Model.Action, "VendorSubscription", new { Area = "Agency" }, FormMethod.Post, new { id = "editSubscriptionForm", onsubmit = "$('#submitButton').click(); return false;" }))
+            {
+                @Html.HiddenFor(m => m.ApiClientId)
+                <table class="table table-bordered" id="subscriptionTable">
+                    <tr>
+                        <td>
+                            @Html.LabelFor(model => model.ApplicationVendorVendorName)
+                        </td>
+                        <td>
+                            @if (Model.IsNew)
+                            {
+                                @Html.DropDownListFor(m => m.ApplicationVendorVendorId, Model.Vendors, "Select a Vendor", new { id = "ApplicationVendorVendorId" })
+                            }
+                            else
+                            {
+                                @Model.ApplicationVendorVendorName
+                                @Html.HiddenFor(m => m.ApplicationVendorVendorId)
+            
+                            }
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.LabelFor(model => model.ApplicationClaimsetDetailPlainEnglish)
+                        </td>
+                        <td>
+                            @Html.DropDownListFor(m => m.ApplicationClaimSetName, Model.Applications, "Select an Access Level", new { id = "ApplicationClaimSetName" })
+                        </td>
+                    </tr>
+                    @if (Model.ApplicationClaimsetDetailSchoolLevelClaimset)
+                    {
+                        <tr>
+                            <td>
+                                @Html.LabelFor(model => model.SelectedSchoolIds, "Schools")
+                            </td>
+                            <td>
+                                @Html.DropDownListFor(m => m.SelectedSchoolIds, Model.Schools, "Select Schools", new { multiple = "multiple", id="SelectedSchoolIds" })
+                            </td>
+                        </tr>
+
+                    }
+            
+                </table>
+            }
+            <div>@Html.Raw(Model.VendorSubscriptionMessage)</div>
+        </div>
+
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="editSubscriptionFormSubmit(@Model.ApiClientId)" data-dismiss="modal" id="submitButton">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+<style>
+    .k-edit-form-container {
+        width: 100%;
+    }
+
+    .field-validation-error {
+
+        color: red;
+
+        display: block;
+        
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+        $("#SelectedSchoolIds").select2();
+        $("#SelectedSchoolIds").select2().val(@Html.Raw(Model.SchoolsString)).trigger('change');
+        IsClaimsetYearBased();
+    });
+
+    $('#ApplicationVendorVendorId').change(function () {
+        var vendor = $('#ApplicationVendorVendorId').val();
+        $.post("@Url.Action("GetApplicationClaimset", "VendorSubscription")?isSchoolLevel=@Model.ApplicationClaimsetDetailSchoolLevelClaimset&vendorId=" + vendor,
+            function(data) {
+                var items = '<option>Select an Access Level</option>';
+                $.each(data,
+                    function(i, state) {
+                        if ("@Model.ApplicationClaimSetName" == state.value) {
+                            items += "<option value='" + state.Value + "' selected >" + state.Text + "</option>";
+                        } else {
+                            items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                        }
+
+                    });
+                $('#ApplicationClaimSetName').html(items);
+            });
+    }); 
+    
+   
+
+</script>

@@ -1,0 +1,37 @@
+﻿@model Ed_Fi.Credential.MVC.Models.ApplicationModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="formTitle">
+            @Html.DisplayFor(m=>m.Title)
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="formBody">
+
+        @using (Html.BeginForm(Model.Action, "Vendors", FormMethod.Post, new { id = "application_" + Model.VendorVendorId, onsubmit="$('#submitButton').click(); return false;" }))
+        {
+            @Html.HiddenFor(m => m.ApplicationId)
+            @Html.HiddenFor(m => m.VendorVendorId)
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.ApplicationName) @Html.TextBoxFor(m => m.ApplicationName)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.ClaimSetName)@Html.DropDownListFor(m => m.ClaimSetName, (IEnumerable<SelectListItem>)ViewData[Constants.CLAIMSET_MODELS])
+            </div>
+             <div class="col-xs-4">
+                @Html.LabelFor(m => m.ProfileId)
+                @Html.DropDownListFor(m => m.ProfileId, (IEnumerable<SelectListItem>)ViewData[Constants.PROFILE_MODELS])
+            </div>
+
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="applicationFormSubmit('@Model.VendorVendorId')" data-dismiss="modal" id="submitButton">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>
+
+

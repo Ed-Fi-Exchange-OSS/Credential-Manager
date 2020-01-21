@@ -1,0 +1,37 @@
+﻿@model Ed_Fi.Credential.MVC.Models.UserModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="formTitle">
+            @Html.DisplayFor(m => m.Title)
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="formBody">
+
+        @using (Html.BeginForm(Model.Action, "User", FormMethod.Post, new { id = "userForm", onsubmit = "$('#submitButton').click(); return false;" }))
+        {
+            @Html.HiddenFor(m => m.UserId)
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.FullName) @Html.TextBoxFor(m => m.FullName)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.Email)@Html.TextBoxFor(m => m.Email)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.WamsUserName)@Html.TextBoxFor(m => m.WamsUserName)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.VendorVendorId)@Html.DropDownListFor(m => m.VendorVendorId, Model.Vendors)
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="userFormSubmit('@Model.VendorVendorId')" data-dismiss="modal" id="submitButton">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>
+
+

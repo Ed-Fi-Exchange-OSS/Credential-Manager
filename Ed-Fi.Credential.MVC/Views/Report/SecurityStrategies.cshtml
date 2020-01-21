@@ -1,0 +1,67 @@
+﻿
+@{
+    ViewBag.Title = "Security Strategies";
+}
+
+<div class="row">
+    <div class="col">
+        <table id="strategies" class="table table-condensed table-bordered" width="100%">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Resource Name Id</th>
+                <th>Claim Set Name</th>
+                <th>Read Strategy</th>
+                <th>Create Strategy</th>
+                <th>Update Strategy</th>
+                <th>Delete Strategy</th>
+            </tr>
+            </thead>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table= $('#strategies').DataTable({
+            ajax: {
+                url: "@Url.Action("SecurityStrategyRead")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "Id", visible: false },
+                { data: "ResourceName" },
+                { data: "ClaimSetName" },
+                { data: "ReadStrategy",
+                    render: function(data) {
+                        return data.match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+                    } },
+                { data: "CreateStrategy",
+                    render: function(data) {
+                        return data.match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+                    } },
+                { data: "UpdateStrategy",
+                    render: function(data) {
+                        return data.match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+                    } },
+                { data: "DeleteStrategy",
+                    render: function(data) {
+                        return data.match(/[A-Z][a-z]+|[0-9]+/g).join(" ");
+                    } }
+            ],
+            order: [[2, 'asc']],
+            lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength', 'csv', 'excel'
+            ],
+            scrollX: true
+        
+        } );
+    });
+</script>
+

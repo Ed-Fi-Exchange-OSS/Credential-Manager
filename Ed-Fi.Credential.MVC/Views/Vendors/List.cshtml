@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Ed_Fi.Credential.MVC.Models.VendorAndUsersModel>
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+    .alert-nopadding {
+        padding: 0;
+    }
+</style>
+<div class="modal" tabindex="-1" role="dialog" id="formModal">
+    <div class="modal-dialog" role="document" id="formContent">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">
+                    New Vendor
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="formBody">
+                @using (Html.BeginForm("NewVendor", "Vendors", FormMethod.Post, new { id = "vendorForm" }))
+                {
+                    <div class="row" id="vendorEdit">
+                        <div class="col">Name: @Html.TextBox("VendorName")</div>
+                        <div class="col">Namespace Prefix: @Html.TextBox("NamespacePrefix")</div>
+                        <div class="col">Email Domain: @Html.TextBox("NamespacePrefix")</div>
+                    </div>
+                }
+
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-dismiss="modal" onclick="newVendorSubmit()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalErrors"></div>
+<div class="table-responsive">
+    <table id="vendors" class="display table table-condensed table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Vendor Name</th>
+                <th>Namespace Prefixes</th>
+                <th>Email Domains</th>
+                <th>Users</th>
+                <th>
+                    @if ((bool)ViewData[Constants.CAN_USER_EDIT_CREDENTIAL])
+                    {
+                        <a href="#" data-toggle="modal" data-target="#formModal">Add</a>
+                    }
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vendor in Model.OrderBy(v => v.VendorName))
+            {
+                <tr>
+                    <td>@Html.DisplayFor(m => vendor.VendorName)</td>
+                    <td>
+                        <ul>
+                            @if (!string.IsNullOrWhiteSpace(vendor.NamespacePrefix))
+                            {
+                                <li>@Html.DisplayFor(m => vendor.NamespacePrefix)</li>
+                            }
+                            @foreach (var ns in vendor.NamespacePrefixes)
+                            {
+                                <li>@Html.DisplayFor(m => ns.NamespacePrefix)</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var ed in vendor.EmailDomains)
+                            {
+                                <li>@Html.DisplayFor(m => ed.EmailDomain)</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        @if (vendor.Users == null || vendor.Users.All(u => string.IsNullOrWhiteSpace(u.Email)))
+                        {
+                            <span class="alert alert-warning alert-nopadding">No users with email exist.  No notifications will be sent.</span>
+                        }
+                        else
+                        {
+                            <ul>
+                                @foreach (var u in vendor.Users)
+                                {
+                                    <li>@Html.DisplayFor(m => u.FullName) : <a href="mailto:@u.Email">@Html.DisplayFor(m => u.Email)</a></li>
+                                }
+
+                            </ul>
+                        }
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Detail", new { id = vendor.VendorId })
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+
+        </tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#vendors').DataTable({
+            paging: false,
+            info: false
+        });
+    });
+
+    function newVendorSubmit() {
+        $.ajax({
+            type: "POST",
+            url: $("#vendorForm").attr('action'),
+            data: $("#vendorForm").serialize(),
+            success: function(data) {
+                if (data.success) {
+                    if (data.newid > 0) {
+                        window.location.href = "@Url.Action("Detail", "Vendors")" + "/" + data.newid; //data.newid
+                    } else {
+                        displayErrors("Something went wrong.");
+                    }
+            }
+            else { displayErrors(data.Errors); }
+        }
+    });
+    return false;
+}
+function displayErrors(errors) {
+    $('#modalErrors').html(errors);
+}
+</script>

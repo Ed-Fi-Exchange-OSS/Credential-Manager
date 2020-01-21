@@ -1,0 +1,36 @@
+﻿@model Ed_Fi.Credential.MVC.Models.ApiClientModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="formTitle">
+            @Html.DisplayFor(m => m.Title)
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="formBody">
+        <div id="clientFormErrors_@Model.ApplicationApplicationId" class="text-danger"></div>
+        @using (Html.BeginForm(Model.Action, "Vendors", FormMethod.Post, new { id = "createApiClient_" + Model.ApplicationApplicationId, onsubmit="$('#submitButton').click(); return false;" }))
+        {
+            @Html.DisplayFor(m => m.Errors)
+            @Html.HiddenFor(m => m.ApplicationApplicationId)
+            @Html.HiddenFor(m => m.ApiClientId)
+            @Html.HiddenFor(m => m.Secret)
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.Name) @Html.TextBoxFor(m => m.Name)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.Key) @Html.TextBoxFor(m => m.Key)
+            </div>
+            <div class="col-xs-4">
+                @Html.LabelFor(m => m.Secret) @Html.TextBoxFor(m => m.SecretDisplay)
+
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="clientFormSubmit('@Model.ApplicationApplicationId')" data-dismiss="modal" id="submitButton">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "Ed-Fi Credentials";
+}
+
+
+<p>This is extracted from WI DPI's EdFi Credential application.  Functionality has not been thoroughly tested in this version.  
+    Some DPI specific packages have been stripped out and UI has not been addressed.</p>
+
+<h3>LEA Options</h3>
+
+<ul>
+    <li>
+        @Html.ActionLink("Vendor Subscription", "Credentials", "VendorSubscription", new { Area = "Agency" }, new { })
+    </li>
+</ul>
+
+
+
+
+<h3>Vendor Options</h3>
+<ul>
+    <li>
+
+        @Html.ActionLink("Profile", "Index", "Profile", new { Area = "Vendor" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Credentials", "Credentials", "Profile", new { Area = "Vendor" }, new { })
+    </li>
+
+</ul>
+
+<h3>DPI User Options</h3>
+<ul>
+    <li>
+        @Html.ActionLink("APIs By Agency", "ApisByAgency", "Report", new { Area = "" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Claimset Details", "ClaimsetDetails", "Report", new { Area = "" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Crosstab", "Crosstab", "Report", new { Area = "" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Security Strategies", "SecurityStrategies", "Report", new { Area = "" }, new { })
+    </li>
+</ul>
+
+
+<h3>DPI Admin Options</h3>
+<ul>
+    <li>
+        @Html.ActionLink("Act As Agency", "Credentials", "VendorSubscription", new { Area = "Agency" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Act As Vendor", "Index", "Profile", new { Area = "Vendor" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Vendor Management", "List", "Vendors", new { Area = "" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Vendor Users", "Index", "User", new { Area = "" }, new { })
+    </li>
+    <li>
+        @Html.ActionLink("Manage Content", "Index", "SiteContent", new { Area = "" }, new { })
+    </li>
+</ul>
+
+
+
+

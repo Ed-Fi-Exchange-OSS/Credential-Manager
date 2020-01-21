@@ -1,0 +1,144 @@
+﻿@using Ed_Fi.Credential.MVC.Models
+@model UserModel
+@{
+    ViewBag.Title = "Manage Users";
+}
+
+<div id="modalErrors"></div>
+<div class="modal" tabindex="-1" role="dialog" id="formModal">
+    <div class="modal-dialog" role="document" id="formContent">
+        
+        
+
+    </div>
+</div>
+
+
+<div>
+    <table id="users" class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>WAMS User Id</th>
+            <th>Vendor</th>
+             @if ((bool)ViewData[Constants.CAN_USER_EDIT_CREDENTIAL])
+            {
+                <th>
+                    <a href="#" onclick="editUser(0);" data-toggle="modal" data-target="#formModal">Add</a>
+                </th>
+            }
+        </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<script type="text/javascript">
+    var usersTable;
+    $(document).ready(function () {
+
+        usersTable=  $('#users').DataTable( {
+            ajax: {
+                url: "@Url.Action("Read","User")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "FullName" },
+                { data: "Email" },
+                { data: "WamsUserName" },
+                { data: "VendorName" }
+                @if ((bool)ViewData[Constants.CAN_USER_EDIT_CREDENTIAL])
+                    {<text>
+                         ,
+                         {
+                             orderable: false,
+                             data: null,
+                             defaultContent: '<a href="#" class="user-delete-control"> Delete</a> | <a href="#" class="user-edit-control" data-toggle="modal" data-target="#formModal"> Edit</a>'
+                         }
+                     </text>}
+
+            ],
+            searching: false,
+            paging: false,
+            info: false
+        });
+
+        // Add event listener for delete
+        $('#users tbody').on('click',
+            'a.user-delete-control',
+            function () {
+                var tr = $(this).closest('tr');
+                var row = usersTable.row(tr);
+                var name = row.data().FullName;
+                var r = confirm("Are you sure you want to delete '" + name+"'?");
+                if (r == true) {
+                    var userId = row.data().UserId;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("Delete", "User")",
+                        data: { userId: userId },
+                        success: function (data) {
+                            if (data.success) {
+                                usersTable.ajax.reload();
+                                displayErrors("");
+                            }
+                            else { displayErrors(data.Errors); }
+
+                        }
+
+                    });
+                }
+                return false;
+            });
+
+        // Add event listener for edit
+        $('#users tbody').on('click',
+            'a.user-edit-control',
+            function() {
+                var tr = $(this).closest('tr');
+                var row = usersTable.row(tr);
+                var userId = row.data().UserId;
+                editUser(userId);
+            });
+
+    });
+
+    function editUser(userId) {
+
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("Edit", "User")?userId=" + userId,
+            success: function (data) {
+                $('#formContent').html(data);
+            }
+        });
+        return false;
+    }
+
+    function userFormSubmit() {
+        $.ajax({
+            type: "POST",
+            url: $("#userForm").attr('action'),
+            data: $("#userForm").serialize(),
+            success: function (data) {
+                if (data.success) {
+                    usersTable.ajax.reload();
+                    displayErrors("");
+                }
+                else { displayErrors(data.Errors); }
+            }
+        });
+        return false;
+    }
+
+    function displayErrors(errors) {
+        $('#modalErrors').html(errors);
+    }
+</script>
+

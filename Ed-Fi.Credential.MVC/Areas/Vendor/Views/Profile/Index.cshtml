@@ -1,0 +1,350 @@
+﻿@model Ed_Fi.Credential.MVC.Areas.Vendor.Models.VendorProfileModel
+@{
+    ViewBag.Title = "Vendor Profile";
+}
+<div id="modalErrors"></div>
+<div class="modal" tabindex="-1" role="dialog" id="agreementWindow">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>
+                    @Html.Raw(Model.AgreementMessage)
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="accpet" class="btn btn-primary">Accept</button>
+                <button type="button" id="reject" class="btn btn-danger">Reject</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="windowRedirect">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">
+                    Redirecting
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p>
+                    You are being redirected because you did not accept the agreement.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="ok" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="formModal">
+    <div class="modal-dialog" role="document" id="formContent">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">
+                    Edit Current User
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="formBody">
+                @using (Html.BeginForm("UpdateUser", "Profile", FormMethod.Post, new { id = "updateUserForm", onsubmit = "$('#submitButton').click(); return false;" }))
+                {
+                    @Html.Hidden("UserId", Model.CurrentUser.UserId)
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>
+                                @Html.LabelFor(model => model.CurrentUser.FullName)
+                            </td>
+                            <td>
+                                @(Html.TextBox("FullName", Model.CurrentUser.FullName, new { id = "FullName" }))
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.LabelFor(model => model.CurrentUser.Email)
+                            </td>
+                            <td>
+                                @(Html.TextBox("Email", Model.CurrentUser.Email, new { id = "Email" }))
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="userFormSubmit();" data-dismiss="modal" id="submitButton">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col">
+        <div class="card bg-light">
+            <div class="card-header ">Current User Identification:</div>
+            <div class="card-body">
+
+                <table class="table table-condensed  table-bordered">
+                    <tr><th>Full Name</th><th>Email</th><th>WAMS User Id</th><th>Vendor</th><th></th></tr>
+                    <tr>
+                        <td><span id="userFullName">@Model.CurrentUser.FullName</span></td>
+                        <td><span id="userEmail">@Model.CurrentUser.Email</span></td>
+                        <td>@Model.CurrentUser.WamsUserName</td>
+                        <td>@Model.CurrentUser.VendorName</td>
+                        <td><a href="#" data-toggle="modal" data-target="#formModal">Edit</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col">
+        <div class="card bg-light">
+            <div class="card-header ">Ed-Fi URLs - Version 3.x (2019-20 forward):</div>
+            <div class="card-body">
+                <table class="table table-condensed  table-bordered">
+                    <tr><th>Name</th><th>URL</th></tr>
+                    @foreach (var u in Model.V3Urls)
+                    {
+                        <tr><td>@u.Name</td><td>@u.Url</td></tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col">
+        <div class="card bg-light">
+            <div class="card-header ">Ed-Fi URLs - Version 2.x (2015-16 to 2018-19):</div>
+            <div class="card-body">
+                <table class="table table-condensed  table-bordered">
+                    <tr><th>Name</th><th>URL</th></tr>
+                    @foreach (var u in Model.Urls)
+                    {
+                        <tr><td>@u.Name</td><td>@u.Url</td></tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col">
+        <div class="card bg-light">
+            <div class="card-header ">@Model.VendorName Users:</div>
+            <div class="card-body">
+                <table class="table table-condensed  table-bordered">
+                    <tr><th>Name</th><th>Email</th></tr>
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr><td>@u.FullName</td><td>@u.Email</td></tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div id="modal2Errors"></div>
+<div class="modal" tabindex="-1" role="dialog" id="formModal2">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">
+                    Add Email Domain
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="formBody">
+                @using (Html.BeginForm("AddVendorDomain", "Profile", FormMethod.Post, new { id = "emailDomainForm", onsubmit = "$('#domainSubmitButton').click(); return false;" }))
+                {
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">@@</span>
+                        </div>
+                        <input type="text" name="domain" class="form-control" placeholder="Email Domain" aria-label="Email Domain" aria-describedby="basic-addon1">
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="domainFormSubmit();" data-dismiss="modal" id="domainSubmitButton">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card bg-light">
+            <div class="card-header ">@Model.VendorName Email Domains:</div>
+            <div class="card-body">
+                <table class="table table-condensed  table-bordered" id="emailDomains">
+                    <thead>
+                        <tr><th>Domain</th><th><a href="#" data-toggle="modal" data-target="#formModal2">Add</a></th></tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@Scripts.Render("~/bundles/jqueryval")
+
+<script>
+    var domains;
+    $(function() {
+        $('body').tooltip({ selector: "[data-toggle='tooltip']" });
+
+       domains = $('#emailDomains').DataTable( {
+            ajax: {
+                url: "@Url.Action("EmailDomains","Profile")",
+                type: "POST",
+                datatype: "json",
+                dataSrc: ""
+            },
+            columns: [
+                { data: "EmailDomain" },
+                {
+                    data: "VendorEmailDomainId",
+                    render: function (data) {
+                        return "<a href='#' onclick='return deleteDomain(" + data +")'>Delete</a>";
+                    },
+                    orderable: false
+                }
+
+
+            ],
+            searching: false,
+            paging: false,
+            info: false
+        });
+
+    });
+
+    function setAgreement(agree) {
+        $.ajax({
+            url: '@Url.Action("Agreement", "Profile")',
+            type: 'POST',
+            data: ({ agree: agree })
+        });
+    }
+
+
+    function userFormSubmit() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("UpdateUser", "Profile")",
+            data: $("#updateUserForm").serialize(),
+            success: function(data) {
+                if (data.success) {
+                    $('#userFullName').html($("#FullName").val());
+                    $('#userEmail').html($("#Email").val());
+                    displayErrors("");
+                } else {
+                    displayErrors(data.Errors);
+                    
+                }
+            }
+
+        });
+
+        return false;
+    }
+    function domainFormSubmit() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("AddVendorDomain", "Profile")",
+            data: $("#emailDomainForm").serialize(),
+            success: function(data) {
+                if (data.success) {
+                    domains.ajax.reload();
+                    $('#modal2Errors').html("");
+                } else {
+                    $('#modal2Errors').html(data.Errors);
+                    
+                }
+            }
+
+        });
+
+        return false;
+    }    
+
+    function displayErrors(errors) {
+        $('#modalErrors').html(errors);
+    }
+
+    function deleteDomain(domainId) {
+        var answer = confirm("Are you sure?");
+        if (answer) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("DeleteVendorDomain", "Profile")",
+                data:{domainId:domainId} ,
+                success: function(data) {
+                    if (data.success) {
+                        domains.ajax.reload();
+                        $('#modal2Errors').html("");
+                    } else {
+                        $('#modal2Errors').html(data.Errors);
+                    }
+                }
+
+            });
+        }
+     return false;
+    }
+</script>
+
+@if (Model.NeedsToSeeAgreement)
+{
+    <script>
+        $(document).ready(function() {
+
+            var window = $("#agreementWindow").modal({
+                keyboard: false,
+                backdrop: 'static',
+                show: true
+            });
+
+
+            $("#accpet").click(function() {
+                setAgreement(true);
+                $("#agreementWindow").modal('hide');
+
+            });
+            $("#reject").click(function() {
+                setAgreement(false);
+                $("#agreementWindow").modal('hide');
+                var windowRedirect = $("#windowRedirect").modal({
+                    keyboard: false,
+                    backdrop: 'static',
+                    show: true
+
+                });
+            });
+            $("#ok").click(function() {
+                location.href = '@Url.Action("Index", "Home", new {Area = ""})';
+            });
+        });
+    </script>
+}
+

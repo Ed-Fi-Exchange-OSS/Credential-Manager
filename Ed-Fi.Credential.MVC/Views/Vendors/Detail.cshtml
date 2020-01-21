@@ -1,0 +1,832 @@
+﻿
+@model Ed_Fi.Credential.MVC.Models.VendorAndUsersModel
+@{
+
+    ViewBag.Title = "Vendor Detail";
+}
+
+<div class="row" id="vendorDisplay">
+    <div class="col">Name: <span id="vendorNameDisplay"> @Html.DisplayFor(m => m.VendorName)</span></div>
+
+    <div class="col">Namespace Prefix (2x): <span id="namespacePrefixDisplay">@Html.DisplayFor(m => m.NamespacePrefix)</span></div>
+    <div class="col">
+        @if (Model.CanEdit)
+        {<text> <a href="#" onclick="editVendor(true)">Edit</a> | </text>}
+        <a href="#vendorDetails" data-toggle="collapse">Expand</a>
+    </div>
+</div>
+
+@using (Html.BeginForm("EditVendor", "Vendors", new { id = Model.VendorId }, FormMethod.Post, new { id = "editVendorForm", onsubmit = "postVendorForm(); return false;" }))
+{
+    <div class="row" id="vendorEdit" style="display:none">
+        <div class="col">Name: @Html.EditorFor(m => m.VendorName)</div>
+
+        <div class="col"><a href="#" onclick="postVendorForm()">Save</a> | <a href="#" onclick="editVendor(false)">Cancel</a></div>
+    </div>
+}
+
+<div class="row collapse in" id="vendorDetails">
+    <div class="col">
+        Namespace Prefixes (3x): @if (Model.CanEdit)
+        {<a href="#" id="addPrefixLink" onclick="addPrefix(true)">Add</a>}
+        @using (Html.BeginForm("AddVendorPrefix", "Vendors", new { id = Model.VendorId }, FormMethod.Post, new { id = "addPrefixForm", style = "display:none", onsubmit = "postPrefixForm(); return false;" }))
+        {
+            <input type="text" name="prefix" id="prefix" /><a href="#" onclick="postPrefixForm()">Save</a> @:| <a href="#" onclick="addPrefix(false)">Cancel</a>
+        }
+        <ul id="prefixesList">
+            @foreach (var ns in Model.NamespacePrefixes)
+            {
+                <li id="ns_@ns.VendorNamespacePrefixId">@Html.DisplayFor(m => ns.NamespacePrefix)  @if (Model.CanEdit)
+                {<a href="#" onclick="deletePrefix(@ns.VendorNamespacePrefixId)">Delete</a>}</li>
+            }
+        </ul>
+    </div>
+
+    <div class="col">
+        Email Domains:  @if (Model.CanEdit)
+        {<a href="#" id="addDomainLink" onclick="addDomain(true)">Add</a>}
+        @using (Html.BeginForm("AddVendorDomain", "Vendors", new { id = Model.VendorId }, FormMethod.Post, new { id = "addDomainForm", style = "display:none", onsubmit = "postDomainForm(); return false;" }))
+        {
+            <input type="text" name="domain" id="domain" /><a href="#" onclick="postDomainForm()">Save</a> @:| <a href="#" onclick="addDomain(false)">Cancel</a>
+        }
+
+        <ul id="domainsList">
+            @foreach (var ed in Model.EmailDomains)
+            {
+                <li id="ed_@ed.VendorEmailDomainId">@Html.DisplayFor(m => ed.EmailDomain)  @if (Model.CanEdit)
+                {<a href="#" onclick="deleteDomain(@ed.VendorEmailDomainId)">Delete</a>}</li>
+            }
+        </ul>
+    </div>
+
+    <div class="col">
+        Users:  @if (Model.CanEdit)
+        {
+
+            <a href="#" onclick="createUser(@Model.VendorId)" data-toggle="modal" data-target="#formModal">Add</a>
+
+        }
+        <ul id="usersList">
+            @foreach (var u in Model.Users)
+            {
+                <li id="u_@u.UserId">
+                    @Html.DisplayFor(m => u.FullName) : <a href="mailto:@u.Email">@Html.DisplayFor(m => u.Email)</a>
+                    @if (Model.CanEdit)
+                    {<text><a href="#" onclick="editUser(@u.UserId)" data-toggle="modal" data-target="#formModal">Edit</a> | <a href="#" onclick="deleteUser(@u.UserId)">Delete</a></text>}
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<br />
+<div id="modalErrors"></div>
+<div class="modal" tabindex="-1" role="dialog" id="formModal">
+    <div class="modal-dialog" role="document" id="formContent">
+    </div>
+</div>
+
+
+<div>
+    <div id="applicationForm"></div>
+    <table id="applications" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Claimset Type</th>
+                <th>Claimset Name</th>
+                <th>Application Name</th>
+                <th>Profile</th>
+               <th></th>
+                @if (Model.CanEdit)
+                {
+                    <th>
+                        <a href="#" onclick="createApplication(@Model.VendorId)" data-toggle="modal" data-target="#formModal">Add</a>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<div id="sampleClient" style="display: none;">
+    <table id="applicationdetail_{2}" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Key</th>
+                <th>Secret</th>
+                <th></th>
+                @if (Model.CanEdit)
+                {
+                    <th>
+                        <a href="#" onclick="createApiClient({0})" data-toggle="modal" data-target="#formModal">Add</a>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<div id="sampleOrgs" style="display: none;">
+    <table id="clientdetail_{2}" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>LEA</th>
+                <th>City</th>
+                @if (Model.CanEdit)
+                {
+                    <th>
+                        <a href="#" onclick="createOrg({0})" data-toggle="modal" data-target="#formModal">Add</a>
+                    </th>
+
+                }
+            </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div>
+
+
+<script type="text/javascript">
+
+        var applicationsTable;
+        var applicationPrefix = "#applicationdetail_";
+        var apiClientPrefix = "#clientdetail_";
+
+        $(document).ready(function () {
+
+           applicationsTable= $('#applications').DataTable( {
+                   ajax: {
+                    url: "@Url.Action("Application_Read2","Vendors")",
+                    data: { vendorId: @Model.VendorId },
+                    type: "POST",
+                    datatype: "json",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "ClaimSetType" },
+                    { data: "ClaimSetName" },
+                    { data: "ApplicationName" },
+                    { data: "ProfileName" },
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: '<a href="#" class=" clients-control">Expand</a>'
+                    }
+                    @if (Model.CanEdit)
+                    {<text>
+                    ,
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: '<a href="#" class="application-delete-control"> Delete</a> | <a href="#" class="application-edit-control" data-toggle="modal" data-target="#formModal"> Edit</a>'
+                    }
+                     </text>}
+
+                ],
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+
+            // Add event listener for opening and closing details
+            $('#applications tbody').on('click',
+                'a.clients-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = applicationsTable.row(tr);
+
+                    if (row.child.isShown()) {
+                        // This row is already open - close it
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        // Open this row
+                        row.child(clientFormat(row.data())).show();
+
+                        var applicationId = row.data().ApplicationId;
+                        loadClients(applicationId);
+                        tr.addClass('shown');
+                        return false;
+                }
+                });
+
+            // Add event listener for delete
+            $('#applications tbody').on('click',
+                'a.application-delete-control',
+                function () {
+                    var tr = $(this).closest('tr');
+                    var row = applicationsTable.row(tr);
+                    var appName = row.data().ApplicationName;
+                    var r = confirm("Are you sure you want to delete '" + appName+"'?");
+                    if (r == true) {
+                        var applicationId = row.data().ApplicationId;
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("Application_Delete2", "Vendors")",
+                            data: { applicationId: applicationId },
+                            success: function (data) {
+                                if (data.success) {
+                                    applicationsTable.ajax.reload();
+                                    displayErrors("");
+                                }
+                                else { displayErrors(data.Errors); }
+
+                            }
+
+                        });
+                    }
+                    return false;
+                });
+
+            // Add event listener for edit
+            $('#applications tbody').on('click',
+                'a.application-edit-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = applicationsTable.row(tr);
+                    var applicationId = row.data().ApplicationId;
+                    editApplication(applicationId);
+                });
+
+        });
+
+        function createApplication(vendorId) {
+            var vendor = {
+                vendorId: vendorId
+            };
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("Application_Create2", "Vendors")",
+                data: vendor,
+                success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function editApplication(applicationId) {
+
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("Application_Update2", "Vendors")",
+                data: { applicationId: applicationId },
+                success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function applicationFormSubmit(vendorId) {
+            $.ajax({
+                type: "POST",
+                url: $("#application_"+vendorId).attr('action'),
+                data: $("#application_"+vendorId).serialize(),
+                success: function (data) {
+                    if (data.success) {
+                                    applicationsTable.ajax.reload();
+                                    displayErrors("");
+                                }
+                                else { displayErrors(data.Errors); }
+                }
+            });
+            return false;
+        }
+
+        function loadClients(applicationId) {
+            var divname = applicationPrefix + applicationId;
+            var application = { applicationId: applicationId };
+
+            $(divname).DataTable({
+                ajax: {
+                    url: "@Url.Action("ApiClient_Read2","Vendors")",
+                    data: application,
+                    type: "POST",
+                    datatype: "json",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "Name" },
+                    { data: "Key" },
+                    { data: "SecretDisplay" },
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: '<a href="#" class="orgs-control">Expand</a>'
+                    }
+                    @if (Model.CanEdit)
+                    {<text>
+                    ,
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: '<a href="#" class="client-delete-control">Delete</a> | <a href="#" class="client-move-control" data-toggle="modal" data-target="#formModal"> Move</a> | <a href="#" class="client-edit-control" data-toggle="modal" data-target="#formModal"> Edit</a>'
+                    }
+                     </text>}
+
+                ],
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+             // Add event listener for opening and closing details
+            $(divname + ' tbody').on('click',
+                'a.orgs-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = $(divname).DataTable().row(tr);
+
+                    if (row.child.isShown()) {
+                        // This row is already open - close it
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        // Open this row
+                        row.child(orgFormat(row.data())).show();
+
+                        var apiClientId = row.data().ApiClientId;
+                        loadOrgs(apiClientId);
+                        tr.addClass('shown');
+                        return false;
+                }
+                });
+
+            // Add event listener for delete
+            $(divname).on('click',
+                'a.client-delete-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = $(divname).DataTable().row(tr);
+                    var apiClientId = row.data().ApiClientId;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ApiClient_Delete2", "Vendors")",
+                        data: {apiClientId:apiClientId},
+                        success: function (data) {
+                            if (data.success) {
+                                     $(divname).DataTable().ajax.reload();
+                                    displayErrors("");
+                                }
+                                else { displayErrors(data.Errors); }
+
+
+                        }
+
+                    });
+                    return false;
+
+                });
+
+               // Add event listener for edit
+            $(divname).on('click',
+                'a.client-edit-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = $(divname).DataTable().row(tr);
+                    var apiClientId = row.data().ApiClientId;
+                    editApiClient(apiClientId);
+
+
+                });
+
+            // Add event listener for edit
+            $(divname).on('click',
+                'a.client-move-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = $(divname).DataTable().row(tr);
+                    var apiClientId = row.data().ApiClientId;
+                    moveApiClient(apiClientId);
+
+
+                });
+        }
+
+        function clientFormat(d) {
+             return $("#sampleClient").html().replace("{0}", d.ApplicationId).replace("{1}", d.ApplicationId).replace("{2}", d.ApplicationId);
+        }
+
+        function createApiClient(applicationId) {
+            var application = {
+                applicationId: applicationId
+            };
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("ApiClient_Create2", "Vendors")",
+                data: application,
+                success: function(data) {
+                      $('#formContent').html(data);
+                }
+            });
+            return false;
+    }
+
+        function editApiClient(apiClientId) {
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("ApiClient_Update2", "Vendors")",
+            data: { apiClientId: apiClientId },
+            success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function clientFormSubmit(applicationId) {
+            $.ajax({
+                type: "POST",
+                url: $("#createApiClient_"+applicationId).attr('action'),
+                data: $("#createApiClient_"+applicationId).serialize(),
+                success: function (data) {
+                     if (data.success) {$(applicationPrefix + applicationId).DataTable().ajax.reload();
+                                    displayErrors("");
+                                }
+                                else { displayErrors(data.Errors); }
+
+
+
+                }
+
+            });
+            return false;
+        }
+
+        function moveApiClient(apiClientId) {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("MoveClient", "Vendors")",
+                data: { apiClientId: apiClientId },
+                success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function moveFormSubmit(apiClientId) {
+            $.ajax({
+                type: "POST",
+                url: $("#moveApiClient_"+apiClientId).attr('action'),
+                data: $("#moveApiClient_"+apiClientId).serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        $(applicationPrefix + data.applicationId).DataTable().ajax.reload();
+                        $(applicationPrefix + data.oldApplicationId).DataTable().ajax.reload();
+                        displayErrors("");
+                    }
+                    else { displayErrors(data.Errors); }
+
+
+
+                }
+
+            });
+            return false;
+        }
+
+        function loadOrgs(apiClientId) {
+            var divname = apiClientPrefix + apiClientId;
+            var apiClient = { apiClientId: apiClientId };
+
+            $(divname).DataTable({
+                ajax: {
+                    url: "@Url.Action("EdOrg_Read","Vendors")",
+                    data: apiClient,
+                    type: "POST",
+                    datatype: "json",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "EducationOrganizationId" },
+                    { data: "NameOfInstitution" },
+                    { data: "Lea" },
+                    { data: "City" }
+                    @if (Model.CanEdit)
+                    {<text>
+                        ,
+                        {
+                            orderable: false,
+                            data: null,
+                            defaultContent: '<a href="#" class="org-delete-control">Delete</a>'
+                        }
+                    </text>}
+                ],
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+            // Add event listener for delete
+            $(divname).on('click',
+                'a.org-delete-control',
+                function() {
+                    var tr = $(this).closest('tr');
+                    var row = $(divname).DataTable().row(tr);
+                    var apiClientId = row.data().ApiClientId;
+                    var edOrgId = row.data().EducationOrganizationId;
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("EdOrg_Delete", "Vendors")",
+                        data: { edOrgId: edOrgId, apiClientId: apiClientId },
+                        success: function(data) {
+                            if (data.success) {
+                                $(apiClientPrefix + apiClientId).DataTable().ajax.reload();
+                            } else {
+                                alert(data.Errors);
+                            }
+
+                        }
+
+                    });
+                    return false;
+
+                });
+        }
+
+        function orgFormat(d) {
+            return $("#sampleOrgs").html().replace("{0}", d.ApiClientId).replace("{1}", d.ApiClientId)
+                .replace("{2}", d.ApiClientId);
+        }
+
+        function createOrg(apiClientId) {
+            var apiClient = {
+                apiClientId: apiClientId
+            };
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("EdOrg_Create", "Vendors")",
+                data: apiClient,
+                success: function(data) {
+                   $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function orgFormSubmit(apiClientId) {
+            $.ajax({
+                type: "POST",
+                url: $("#createOrg_" + apiClientId).attr('action'),
+                data: $("#createOrg_" + apiClientId).serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        $(apiClientPrefix + apiClientId).DataTable().ajax.reload();;
+                        displayErrors("");
+                    }
+                    else { displayErrors(data.Errors); }
+                }
+            });
+
+            return false;
+        }
+
+        function displayErrors(errors) {
+            $('#modalErrors').html(errors);
+            }
+
+        function editVendor(edit) {
+            if (edit) {
+                $("#vendorDisplay").hide();
+                $("#vendorEdit").show();
+            }
+            else {
+                $("#vendorEdit").hide();
+                $("#vendorDisplay").show();
+            }
+         return false;
+
+        }
+
+        function postVendorForm() {
+         $.ajax({
+                type: "POST",
+                url: $("#editVendorForm").attr("action"),
+                data: $("#editVendorForm").serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        $('#vendorNameDisplay').html($("#VendorName").val());
+                        $('#namespacePrefixDisplay').html($("#NamespacePrefix").val());
+                        editVendor(false);
+                    }
+                    else { displayErrors(data.Errors); }
+
+                }
+
+            });
+            return false;
+    }
+
+        function addPrefix(edit) {
+            if (edit) {
+                $("#addPrefixForm").show();
+                $("#addPrefixLink").hide();
+                return false;
+            }
+            else {
+                $("#addPrefixForm").hide();
+                $("#addPrefixLink").show();
+            }
+           return false;
+
+        }
+
+        function postPrefixForm() {
+         $.ajax({
+                type: "POST",
+                url: $("#addPrefixForm").attr("action"),
+                data: $("#addPrefixForm").serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        if (data.newid > 0) {
+                            $('#prefixesList').append("<li id='ns_" + data.newid + "'>" + $("#prefix").val() + " <a href='#' onclick='deletePrefix(" + data.newid + ")'>Delete</a></li>"); //data.newid
+                        }
+                        $("#prefix").val("");
+                        addPrefix(false);
+                    }
+                    else { displayErrors(data.Errors); }
+
+                }
+
+            });
+            return false;
+    }
+
+        function deletePrefix(prefixId) {
+         $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("DeleteVendorPrefix", "Vendors")",
+                        data: {id:@Model.VendorId, prefixId:prefixId},
+                        success: function (data) {
+                            if (data.success) {
+                                $("#ns_"+prefixId).remove();
+                            }
+                            else { alert(data.Errors); }
+
+                        }
+
+                    });
+                    return false;
+    }
+
+        function addDomain(edit) {
+            if (edit) {
+                $("#addDomainForm").show();
+                $("#addDomainLink").hide();
+                return false;
+            }
+            else {
+                $("#addDomainForm").hide();
+                $("#addDomainLink").show();
+            }
+            return false;
+
+        }
+
+        function postDomainForm() {
+         $.ajax({
+                type: "POST",
+                url: $("#addDomainForm").attr("action"),
+                data: $("#addDomainForm").serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        if (data.newid > 0) {
+                            $('#domainsList').append("<li id='ed_" + data.newid + "'>" + $("#domain").val() + " <a href='#' onclick='deleteDomain(" + data.newid + ")'>Delete</a></li>"); //data.newid
+                        }
+                        $("#domain").val("");
+                        addDomain(false);
+                    }
+                    else { displayErrors(data.Errors); }
+
+                }
+
+            });
+            return false;
+    }
+
+        function deleteDomain(domainId) {
+         $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("DeleteVendorDomain", "Vendors")",
+                        data: {id:@Model.VendorId, domainId:domainId},
+                        success: function (data) {
+                            if (data.success) {
+                                $("#ed_"+domainId).remove();
+                            }
+                            else { alert(data.Errors); }
+
+                        }
+
+                    });
+                    return false;
+    }
+
+        function createUser(vendorId) {
+            var vendor = {
+                vendorId: vendorId
+            };
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("User_Create", "Vendors")",
+                data: vendor,
+                success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function editUser(userId) {
+
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("User_Update", "Vendors")",
+                data: { userId: userId },
+                success: function (data) {
+                    $('#formContent').html(data);
+                }
+            });
+            return false;
+        }
+
+        function userFormSubmit(vendorId) {
+            $.ajax({
+                type: "POST",
+                url: $("#userForm").attr('action'),
+                data: $("#userForm").serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        if (data.newid > 0) {
+                            $('#usersList').append("<li id='u_" +
+                                data.newid +
+                                "'>" +
+                                data.FullName +
+                                " : <a href='mailto:" +
+                                data.Email +
+                                "'>" +
+                                data.Email +
+                                "</a> <a href='#' onclick='editUser(" +
+                                data.newid +
+                                ")'  data-toggle='modal' data-target='#formModal'>Edit</a> | <a href='#' onclick='deleteUser(" +
+                                data.newid +
+                                ")'>Delete</a></li>"); //data.newid
+                        } else {
+                            if (data.UserId > 0) {
+                                $("#u_" + data.UserId).html(
+                                    data.FullName +
+                                    " : <a href='mailto:" +
+                                    data.Email +
+                                    "'>" +
+                                    data.Email +
+                                    "</a> <a href='#' onclick='editUser(" +
+                                    data.UserId +
+                                    ")'  data-toggle='modal' data-target='#formModal'>Edit</a> | <a href='#' onclick='deleteUser(" +
+                                    data.UserId +
+                                    ")'>Delete</a>"); //data.UserId
+                            }
+                        }
+                        displayErrors("");
+                    }
+                    else { displayErrors(data.Errors); }
+                }
+            });
+            return false;
+        }
+
+        function deleteUser(userId) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("User_Delete", "Vendors")",
+                data: {userId:userId},
+                success: function (data) {
+                    if (data.success) {
+                        $("#u_" + userId).remove();
+                        displayErrors("");
+                    }
+                    else { displayErrors(data.Errors); }
+
+                }
+
+            });
+            return false;
+        }
+
+
+</script>
+

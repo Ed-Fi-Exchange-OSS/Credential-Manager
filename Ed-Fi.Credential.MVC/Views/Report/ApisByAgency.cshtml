@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "By Agency";
+}
+
+<div class="row">
+    <div class="col">
+        <table id="orgs" class="table table-condensed table-bordered">
+            <thead>
+                <tr>
+                    <th>Education Organization Id</th>
+                    <th>Organization Name</th>
+                    <th>LEA</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div id="sampleClient" style="display: none;">
+    <table id="orgdetail_{0}" class="table table-condensed table-bordered" width="100%">
+        <thead>
+            <tr>
+                <th>ApiClientId</th>
+                <th>Vendor Name</th>
+                <th>Key</th>
+                <th>Profile</th>
+                <th>Claimset</th>
+             </tr>
+        </thead>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table=  $('#orgs').DataTable( {
+                   ajax: {
+                    url: "@Url.Action("ByAgencyLea","Report")",
+                    type: "POST",
+                    datatype: "json",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "EducationOrganizationId" },
+                    { data: "Name" },
+                    { data: "Lea" },
+                    {
+                        orderable: false,
+                        data: null,
+                        defaultContent: '<a href="#" class=" clients-control">Expand</a>'
+           }
+                   ]
+            });
+
+        // Add event listener for opening and closing details
+        $('#orgs tbody').on('click',
+            'a.clients-control',
+            function() {
+                    var tr = $(this).closest('tr');
+                    var row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        // This row is already open - close it
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        // Open this row
+                        row.child(clientFormat(row.data())).show();
+                        var orgId = row.data().EducationOrganizationId;
+                        loadClients(orgId);
+                        tr.addClass('shown');
+                return false;
+  }
+
+                });
+
+    });
+
+    function clientFormat(d) {
+        return $("#sampleClient").html().replace("{0}", d.EducationOrganizationId);
+    }
+
+
+    function loadClients(orgId) {
+            var divname = "#orgdetail_" + orgId;
+            var org = { orgId: orgId };
+
+            $(divname).DataTable({
+                ajax: {
+                    url: "@Url.Action("ByAgencyApi","Report")",
+                    data: org,
+                    type: "POST",
+                    datatype: "json",
+                    dataSrc: ""
+                },
+                columns: [
+                    { data: "ApiClientId", visible: false },
+                    { data: "VendorName" },
+                    { data: "Key" },
+                    { data: "Profile" },
+                    { data: "Claimset" }
+
+                ],
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+
+
+
+        }
+
+</script>
