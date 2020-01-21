@@ -33,6 +33,7 @@ An EdFi_Admin, EdFi_Security, and ODS database are a prerequisite for this appli
 - Agency and AgencySchool in the ODS database for Education Organization data
 - LatestEdOrgs in EdFi_Admin for Education Organization data
 - AsmUser in EdFi_Admin for WAMS comparable user data
+
 Scripts are located in the Database folder to add the additional objects needed for those databases.
 
 ### Code
