@@ -8,8 +8,7 @@
 <div class="row" id="vendorDisplay">
     <div class="col">Name: <span id="vendorNameDisplay"> @Html.DisplayFor(m => m.VendorName)</span></div>
 
-    <div class="col">Namespace Prefix (2x): <span id="namespacePrefixDisplay">@Html.DisplayFor(m => m.NamespacePrefix)</span></div>
-    <div class="col">
+     <div class="col">
         @if (Model.CanEdit)
         {<text> <a href="#" onclick="editVendor(true)">Edit</a> | </text>}
         <a href="#vendorDetails" data-toggle="collapse">Expand</a>

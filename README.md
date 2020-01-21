@@ -9,9 +9,9 @@ A note on authentication and authorization: the State of Wisconsin has a statewi
 
 ### Database
 An EdFi_Admin, EdFi_Security, and ODS database are a prerequisite for this application.  Scripts are located in the Database folder to add the additional objects needed for those databases.  This sample project references a generic version of EdFi_ODS, though it would normally reference a multi-year ODS.  Please adjust the following views to suit your implementation:
-	Agency and AgencySchool in the ODS database for Education Organization data
-	LatestEdOrgs in EdFi_Admin for Education Organization data
-	AsmUser in EdFi_Admin for WAMS comparable user data
+- Agency and AgencySchool in the ODS database for Education Organization data
+- LatestEdOrgs in EdFi_Admin for Education Organization data
+- AsmUser in EdFi_Admin for WAMS comparable user data
 Scripts are located in the Database folder to add the additional objects needed for those databases.
 
 ### Code

@@ -60,10 +60,6 @@
                     <td>@Html.DisplayFor(m => vendor.VendorName)</td>
                     <td>
                         <ul>
-                            @if (!string.IsNullOrWhiteSpace(vendor.NamespacePrefix))
-                            {
-                                <li>@Html.DisplayFor(m => vendor.NamespacePrefix)</li>
-                            }
                             @foreach (var ns in vendor.NamespacePrefixes)
                             {
                                 <li>@Html.DisplayFor(m => ns.NamespacePrefix)</li>
