@@ -4,6 +4,27 @@ This is a stripped down version of the application which the Wisconsin Departmen
 
 A note on authentication and authorization: the State of Wisconsin has a statewide authentication system (WAMS) which is accessible to anyone in the state including districts and vendors and the Wisconsin Department of Public Instruction has a separate authorization system (ASM/WISEsecure) which provides authorization for its applications.  These two systems are integral to the functioning of the Ed-Fi.Credentials application, but are not included in this sample.  Those components have been removed and default values are inserted to allow it to function in demo form.  
 
+## What Is Included
+## For Admins
+![Home](./ReadMeImages/Home.jpg)
+### High-level Vendor List
+![Vendor Management](./ReadMeImages/VendorMgmt.JPG)
+### Manage Vendor Details
+![Vendor Management Detail](./ReadMeImages/VendorMgmtDetail.JPG)
+### Security Strategies By Claimset
+![Security Strategy Report](./ReadMeImages/SecurityRpt.jpg)
+### Claimset Details
+![Claimset Detail Report](./ReadMeImages/ClaimsetRpt.jpg)
+### API Clients By Education Organization
+![API Client By Organization Report](./ReadMeImages/ApiByAgency.JPG)
+### Crosstab of Vendor/Application/API Clients/Education Organizations
+![Crosstab Report](./ReadMeImages/Crosstab.JPG)
+## For Vendors
+### Credential Listing with Details
+![Vendor Credentials](./ReadMeImages/VendorCredentials.JPG)
+## For LEAs
+### Self-service Credentialing
+![Agency Credentials](./ReadMeImages/AgencyCredentials.JPG)
 
 ## Getting Started
 
